@@ -52,7 +52,7 @@ public class Mercado {
 
         Caixa[] caixas = new Caixa[c.caixas];
         for (int i = 0; i < caixas.length; i++)
-            caixas[i] = new Caixa(i, fila, sync, produtos, c.janelaMs, concluidas, execucoes, compras.size());
+            caixas[i] = new Caixa(i, fila, sync, produtos, c.janelaMs, concluidas, execucoes, compras.size(), c.servico.equals("cpu"));
 
         long ini = System.nanoTime();
         clientes.start();

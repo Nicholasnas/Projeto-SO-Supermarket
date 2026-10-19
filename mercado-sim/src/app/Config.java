@@ -18,6 +18,8 @@ public class Config {
     public int buffer = 20;                  // vagas da fila de prontos
     public long intervaloMs = 2;             // tempo entre chegadas de clientes
     public long msPorUnidade = 2;            // tempo de atendimento por unidade no carrinho
+    public String servico = "sleep";         // sleep (tempo simulado) | cpu (trabalho real de CPU, depende dos núcleos)
+    public String cor = "auto";              // auto | sim | nao (cores no terminal)
 
     public static Config parse(String[] args) {
         Map<String, String> m = new HashMap<>();
@@ -41,6 +43,8 @@ public class Config {
         c.buffer = Integer.parseInt(m.getOrDefault("buffer", "" + c.buffer));
         c.intervaloMs = Long.parseLong(m.getOrDefault("intervalo", "" + c.intervaloMs));
         c.msPorUnidade = Long.parseLong(m.getOrDefault("msporunidade", "" + c.msPorUnidade));
+        c.cor = m.getOrDefault("cor", c.cor).toLowerCase();
+        c.servico = m.getOrDefault("servico", c.servico).toLowerCase();
         return c;
     }
 
@@ -49,7 +53,7 @@ public class Config {
         Config c = new Config();
         c.modo = modo; c.escalonador = escalonador; c.sync = sync; c.clientes = clientes; c.produtos = produtos;
         c.estoque = estoque; c.caixas = caixas; c.seed = seed; c.repeticoes = repeticoes; c.janelaMs = janelaMs;
-        c.buffer = buffer; c.intervaloMs = intervaloMs; c.msPorUnidade = msPorUnidade;
+        c.buffer = buffer; c.intervaloMs = intervaloMs; c.msPorUnidade = msPorUnidade; c.cor = cor; c.servico = servico;
         return c;
     }
 }

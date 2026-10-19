@@ -119,4 +119,15 @@ public class ConflitoE2eTest {
         for (Compra compra : r.compras) Afirma.igual(0L, compra.cupom.total(), "nada a cobrar sem estoque");
         Afirma.verdadeiro(!r.verificador.haConflito(), "sem conflito");
     }
+
+    @Teste
+    public void servicoComTrabalhoDeCpuTambemFechaOEstoque() throws Exception {
+        Config c = new Config();
+        c.sync = "POR_PRODUTO";
+        c.servico = "cpu";
+        c.clientes = 20;
+        Resultado r = Mercado.executarPadrao(c);
+        Afirma.igual(20, r.concluidas, "todas concluídas");
+        Afirma.verdadeiro(!r.verificador.haConflito(), "semáforos continuam evitando o conflito com serviço em CPU");
+    }
 }

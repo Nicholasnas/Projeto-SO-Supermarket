@@ -15,11 +15,30 @@ Clientes ──[semáforo vazio]──► Fila de prontos ──[semáforo cheio
 ./build.sh
 java -cp out app.Main --modo=demo        # 1) o conflito aparecendo no cupom fiscal
 java -cp out app.Main --modo=comparar    # 2) experimentos para tirar conclusões
+java -cp out app.Main --modo=escala      # 3) variando caixas (threads) e tamanho da carga
 java -cp out app.Main --escalonador=PREFERENCIAL --sync=GLOBAL   # simulação avulsa
 ```
 
 Parâmetros (`--chave=valor`): `escalonador` (FCFS, QUANTIDADE, PREFERENCIAL), `sync` (SEM, GLOBAL, POR_PRODUTO), `clientes`, `produtos`, `estoque`, `caixas`, `seed`, `repeticoes`, `janela`,
-`buffer`, `intervalo`, `msporunidade`.
+`buffer`, `intervalo`, `msporunidade`, `servico` (sleep ou cpu), `cor` (auto, sim ou nao).
+
+## E em outro computador? (núcleos e threads)
+
+O tempo de atendimento é simulado com `sleep` por padrão, então ele quase não depende da máquina: a thread dorme e não usa CPU.
+Com `--servico=cpu` cada atendimento gasta tempo de CPU de verdade, e aí o número de núcleos passa a importar.
+
+```bash
+./nucleos.sh 8 3     # 8 caixas, 3 repetições, limita a CPU a 1, 2, 4 e 8 núcleos (Linux, usa taskset)
+```
+
+Regra prática: com `N` caixas e `M` núcleos, o ganho para quando `M >= N`. Com menos núcleos que caixas, as threads se revezam.
+O conflito de estoque no modo `SEM` aparece em qualquer máquina, porque nasce da concorrência e não da velocidade.
+
+## Saída colorida
+
+Linhas **verdes** não tiveram conflito de estoque; linhas **amarelas** tiveram (e os cupons conflitantes aparecem em amarelo na demo).
+As cores ligam sozinhas em um terminal e desligam quando a saída vai para um arquivo ou pipe (ou com `NO_COLOR`).
+No console do IntelliJ, que não é um terminal de verdade, use `--cor=sim`. Para desligar, `--cor=nao`.
 
 ## Conceitos de SO, e onde estão no código
 

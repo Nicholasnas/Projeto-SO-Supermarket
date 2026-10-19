@@ -5,6 +5,8 @@ import modelo.Cupom;
 import modelo.ItemCompra;
 import modelo.Produto;
 import sync.EstrategiaSync;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,9 +20,10 @@ public class Caixa extends Thread {
     private final AtomicInteger concluidas;
     private final AtomicInteger[] execucoes;
     private final int total;
+    private final boolean servicoCpu;
 
     public Caixa(int n, FilaProntos fila, EstrategiaSync sync, List<Produto> produtos, long janelaMs,
-                 AtomicInteger concluidas, AtomicInteger[] execucoes, int total) {
+                 AtomicInteger concluidas, AtomicInteger[] execucoes, int total, boolean servicoCpu) {
         super("caixa-" + n);
         setDaemon(true);
         this.fila = fila;
@@ -30,6 +33,7 @@ public class Caixa extends Thread {
         this.concluidas = concluidas;
         this.execucoes = execucoes;
         this.total = total;
+        this.servicoCpu = servicoCpu;
     }
 
     @Override
@@ -50,7 +54,7 @@ public class Caixa extends Thread {
 
     private void atender(Compra c) throws InterruptedException {
         c.inicio = System.nanoTime();
-        Thread.sleep(c.burst); // tempo de passar os itens no caixa (fora da seção crítica)
+        atendimento(c.burst); // tempo de passar os itens no caixa (fora da seção crítica)
 
         List<Produto> doCarrinho = new ArrayList<>();
         for (ItemCompra i : c.itens) doCarrinho.add(produtos.get(i.produtoId()));
@@ -74,6 +78,20 @@ public class Caixa extends Thread {
         c.fim = System.nanoTime();
         execucoes[c.id].incrementAndGet();
         concluidas.incrementAndGet();
+    }
+
+    /**
+     * Simula o atendimento. Em "sleep" a thread dorme (não usa CPU, então o número de núcleos quase não importa).
+     * Em "cpu" ela gasta tempo de CPU de verdade: com menos núcleos que caixas, as threads disputam a CPU e o
+     * tempo total aumenta, como em um computador menos potente.
+     */
+    private void atendimento(long ms) throws InterruptedException {
+        if (!servicoCpu) { Thread.sleep(ms); return; }
+        ThreadMXBean mx = ManagementFactory.getThreadMXBean();
+        long alvo = mx.getCurrentThreadCpuTime() + ms * 1_000_000L;
+        while (mx.getCurrentThreadCpuTime() < alvo) {
+            if (Thread.interrupted()) throw new InterruptedException();
+        }
     }
 
     private void pausa() {
