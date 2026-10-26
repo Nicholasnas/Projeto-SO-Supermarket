@@ -2,6 +2,7 @@ package monitor;
 
 import modelo.Compra;
 import modelo.Produto;
+import terminal.Cor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -51,11 +52,12 @@ public class Verificador {
     }
 
     public void imprimir() {
-        System.out.println("  Conferência (cupons x estoque):");
-        System.out.printf("    %-10s %8s %9s %9s %7s  %s%n", "Produto", "Inicial", "Vendido", "Esperado", "Real", "Situação");
+        System.out.println(Cor.negrito("  Conferência (cupons x estoque):"));
+        System.out.println(Cor.negrito(String.format("    %-10s %8s %9s %9s %7s  %s", "Produto", "Inicial", "Vendido", "Esperado", "Real", "Situação")));
         for (LinhaProduto l : linhas) {
             String s = l.conflito() ? (l.vendido() > l.inicial() ? "CONFLITO: vendeu mais do que havia" : "CONFLITO: estoque não bate") : "ok";
-            System.out.printf("    %-10s %8d %9d %9d %7d  %s%n", l.nome(), l.inicial(), l.vendido(), l.esperado(), l.obtido(), s);
+            System.out.println(Cor.status(l.conflito(), String.format("    %-10s %8d %9d %9d %7d  %s",
+                    l.nome(), l.inicial(), l.vendido(), l.esperado(), l.obtido(), s)));
         }
     }
 }

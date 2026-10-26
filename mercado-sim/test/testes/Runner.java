@@ -7,7 +7,7 @@ import java.lang.reflect.Method;
 public class Runner {
     private static final Class<?>[] CLASSES = {
             EscalonadorTest.class, ModeloTest.class, FilaProntosTest.class,
-            SincronizacaoTest.class, VerificadorTest.class,
+            SincronizacaoTest.class, VerificadorTest.class, CorTest.class,
             ConflitoE2eTest.class, EscalonamentoE2eTest.class
     };
 
